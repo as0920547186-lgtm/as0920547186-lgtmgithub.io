@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>海鮮市場</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "微軟正黑體", Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    header {
+      background-color: #00796b;
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header .logo h1 {
+      font-size: 2rem;
+    }
+    header nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    header nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+    header nav ul li a:hover {
+      text-decoration: underline;
+    }
+
+    /* Banner / 首頁大圖 */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero .overlay h2 {
+      color: white;
+      font-size: 2.8rem;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+    }
+
+    .section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 20px auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      margin-bottom: 15px;
+      color: #00796b;
+    }
+    .section p {
+      line-height: 1.6;
+      color: #444;
+    }
+
+    /* 評價區塊 */
+    .testimonials {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    .testimonials h2 {
+      color: #00796b;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .testimonial-item {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+    }
+    .testimonial-item:last-child {
+      border-bottom: none;
+    }
+    .testimonial-item .name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .testimonial-item .text {
+      font-style: italic;
+      color: #555;
+    }
+
+    .product-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .product-item {
+      background-color: white;
+      padding: 15px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .product-item img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .product-item h3 {
+      font-size: 1.3rem;
+      margin: 10px 0;
+    }
+    .product-item p.price {
+      font-size: 1.1rem;
+      color: #d32f2f;
+      margin-bottom: 5px;
+    }
+    .product-item p.stock {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .stock-actions, .buy-actions {
+      margin-top: 8px;
+    }
+    .stock-actions input, .buy-actions input {
+      width: 60%;
+      padding: 5px;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .stock-actions button, .buy-actions button {
+      padding: 6px 10px;
+      margin: 4px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .stock-actions button:hover, .buy-actions button:hover {
+      background-color: #005a4f;
+    }
+
+    #cartSection {
+      padding: 20px;
+      background-color: #fafafa;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    #cartSection h3 {
+      margin-bottom: 10px;
+    }
+    #cartItems {
+      margin-bottom: 10px;
+    }
+    #cartTotal {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    footer {
+      background-color: #00796b;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><h1>海鮮市場</h1></div>
+    <nav>
+      <ul>
+        <li><a href="#home" onclick="showSection('home')">首頁</a></li>
+        <li><a href="#products" onclick="showSection('products')">商品分類</a></li>
+        <li><a href="#about" onclick="showSection('about')">關於我們</a></li>
+        <li><a href="#contact" onclick="showSection('contact')">聯繫我們</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- 首頁 (home) -->
+  <div id="home">
+    <div class="hero">
+      <img src="https://images.unsplash.com/photo-1563230240-36fcf47c6b5e?auto=format&fit=crop&w=1374&q=80" alt="海鮮市場實景">
+      <div class="overlay">
+        <h2>最新鮮的海鮮，一手掌握</h2>
+      </div>
+    </div>
+    <div class="section">
+      <h2>歡迎來到海鮮市場</h2>
+      <p>我們提供各式優質海鮮，支援庫存管理與線上結帳功能。請至「商品分類」瀏覽並選購您喜歡的海鮮。</p>
+    </div>
+    <div class="testimonials">
+      <h2>客戶評價</h2>
+      <div class="testimonial-item">
+        <div class="name">張小姐</div>
+        <div class="text">「在這裡買的鮮蝦，非常新鮮，蝦肉 Q 彈，一次買了 5 公斤，完全沒問題，推薦給大家！」</div>
+      </div>
+      <div class="testimonial-item">
+        <div class="name">李先生</div>
+        <div class="text">「魚貨品質很好，價格公道，送貨也很快，第一次購買就很滿意。」</div>
+      </div>
+      <div class="testimonial-item">
+        <div class="name">王太太</div>
+        <div class="text">「客服態度很好，每次遇到問題都能幫忙解決。下次還會再買！」</div>
+      </div>
+      <div class="testimonial-item">
+        <div class="name">陳先生</div>
+        <div class="text">「下訂後隔天就收到貨，魚肉很新鮮，完全沒異味，家人都讚不絕口！」</div>
+      </div>
+      <div class="testimonial-item">
+        <div class="name">林小姐</div>
+        <div class="text">「他們的干貝也很讚，品質好又大顆！下次要多買一些。」</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 商品分類 -->
+  <div id="products" class="section" style="display: none;">
+    <h2>商品分類</h2>
+    <p>選擇您要購買的海鮮：</p>
+    <div class="product-gallery">
+      <!-- 商品 1 -->
+      <div class="product-item" id="product1">
+        <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=400&q=80" alt="草蝦">
+        <h3>草蝦</h3>
+        <p class="price">NT$220 / 公斤</p>
+        <p class="stock">庫存：<span id="stock1">60</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock1" placeholder="數量" min="1" />
+          <button onclick="updateStock(1, +1)">進貨</button>
+          <button onclick="updateStock(1, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty1" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(1)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 2 -->
+      <div class="product-item" id="product2">
+        <img src="https://images.unsplash.com/photo-1587462894154-47c7cd59adbf?auto=format&fit=crop&w=400&q=80" alt="生蠔">
+        <h3>生蠔</h3>
+        <p class="price">NT$180 / 公斤</p>
+        <p class="stock">庫存：<span id="stock2">40</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock2" placeholder="數量" min="1" />
+          <button onclick="updateStock(2, +1)">進貨</button>
+          <button onclick="updateStock(2, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty2" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(2)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 3 -->
+      <div class="product-item" id="product3">
+        <img src="https://images.unsplash.com/photo-1562914224-54f8e908ef1e?auto=format&fit=crop&w=400&q=80" alt="鮑魚">
+        <h3>鮑魚</h3>
+        <p class="price">NT$320 / 公斤</p>
+        <p class="stock">庫存：<span id="stock3">25</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock3" placeholder="數量" min="1" />
+          <button onclick="updateStock(3, +1)">進貨</button>
+          <button onclick="updateStock(3, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty3" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(3)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 4 -->
+      <div class="product-item" id="product4">
+        <img src="https://images.unsplash.com/photo-1577880216149-c8cab8d92c34?auto=format&fit=crop&w=400&q=80" alt="章魚">
+        <h3>章魚</h3>
+        <p class="price">NT$200 / 公斤</p>
+        <p class="stock">庫存：<span id="stock4">50</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock4" placeholder="數量" min="1" />
+          <button onclick="updateStock(4, +1)">進貨</button>
+          <button onclick="updateStock(4, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty4" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(4)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 5 -->
+      <div class="product-item" id="product5">
+        <img src="https://images.unsplash.com/photo-1510627498534-cf7e9002facc?auto=format&fit=crop&w=400&q=80" alt="帝王蟹">
+        <h3>帝王蟹</h3>
+        <p class="price">NT$500 / 公斤</p>
+        <p class="stock">庫存：<span id="stock5">15</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock5" placeholder="數量" min="1" />
+          <button onclick="updateStock(5, +1)">進貨</button>
+          <button onclick="updateStock(5, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty5" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(5)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 6 -->
+      <div class="product-item" id="product6">
+        <img src="https://images.unsplash.com/photo-1572854496863-787d0a744f3c?auto=format&fit=crop&w=400&q=80" alt="鱸魚">
+        <h3>鱸魚</h3>
+        <p class="price">NT$140 / 公斤</p>
+        <p class="stock">庫存：<span id="stock6">30</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock6" placeholder="數量" min="1" />
+          <button onclick="updateStock(6, +1)">進貨</button>
+          <button onclick="updateStock(6, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty6" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(6)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 7 -->
+      <div class="product-item" id="product7">
+        <img src="https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=400&q=80" alt="蛤蜊">
+        <h3>蛤蜊</h3>
+        <p class="price">NT$100 / 公斤</p>
+        <p class="stock">庫存：<span id="stock7">80</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock7" placeholder="數量" min="1" />
+          <button onclick="updateStock(7, +1)">進貨</button>
+          <button onclick="updateStock(7, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty7" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(7)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 8 -->
+      <div class="product-item" id="product8">
+        <img src="https://images.unsplash.com/photo-1582226313190-86418e33d62b?auto=format&fit=crop&w=400&q=80" alt="干貝">
+        <h3>干貝</h3>
+        <p class="price">NT$280 / 公斤</p>
+        <p class="stock">庫存：<span id="stock8">35</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock8" placeholder="數量" min="1" />
+          <button onclick="updateStock(8, +1)">進貨</button>
+          <button onclick="updateStock(8, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty8" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(8)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 9 -->
+      <div class="product-item" id="product9">
+        <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80" alt="魷魚">
+        <h3>魷魚</h3>
+        <p class="price">NT$160 / 公斤</p>
+        <p class="stock">庫存：<span id="stock9">45</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock9" placeholder="數量" min="1" />
+          <button onclick="updateStock(9, +1)">進貨</button>
+          <button onclick="updateStock(9, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty9" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(9)">加入購物車</button>
+        </div>
+      </div>
+      <!-- 商品 10 -->
+      <div class="product-item" id="product10">
+        <img src="https://images.unsplash.com/photo-1576567651914-f1a6b07ec7be?auto=format&fit=crop&w=400&q=80" alt="螃蟹">
+        <h3>螃蟹</h3>
+        <p class="price">NT$230 / 公斤</p>
+        <p class="stock">庫存：<span id="stock10">28</span> kg</p>
+        <div class="stock-actions">
+          <input type="number" id="inputStock10" placeholder="數量" min="1" />
+          <button onclick="updateStock(10, +1)">進貨</button>
+          <button onclick="updateStock(10, -1)">銷貨</button>
+        </div>
+        <div class="buy-actions">
+          <input type="number" id="buyQty10" placeholder="購買數量" min="1" />
+          <button onclick="addToCart(10)">加入購物車</button>
+        </div>
+      </div>
+    </div>
+    <div id="cartSection">
+      <h3>購物車</h3>
+      <div id="cartItems">尚未加入任何商品</div>
+      <div id="cartTotal">總金額：NT$0</div>
+      <button onclick="checkout()">結帳</button>
+    </div>
+  </div>
+
+  <!-- 關於我們 -->
+  <div id="about" class="section" style="display: none;">
+    <h2>關於我們</h2>
+    <p>我們是臺灣在地的海鮮販售平台，從漁港直送，提供鮮美海產與完善庫存 / 交易機制。為您把關品質與服務。</p>
+  </div>
+
+  <!-- 聯繫我們 -->
+  <div id="contact" class="section" style="display: none;">
+    <h2>聯繫我們</h2>
+    <p>如有任何問題或合作意願，歡迎透過以下方式聯絡我們：</p>
+    <ul>
+      <li>電話：02‑1234‑5678</li>
+      <li>Email：service@haixianmarket.tw</li>
+      <li>地址：臺北市中正區某某路 100 號</li>
+    </ul>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 海鮮市場。版權所有。</p>
+  </footer>
+
+  <script>
+    function showSection(sectionId) {
+      const sections = ["home", "products", "about", "contact"];
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.display = (id === sectionId) ? "block" : "none";
+        }
+      });
+      window.scrollTo(0, 0);
+    }
+
+    function updateStock(prodNum, op) {
+      const stockEl = document.getElementById("stock" + prodNum);
+      const inputEl = document.getElementById("inputStock" + prodNum);
+      let current = parseInt(stockEl.textContent);
+      let qty = parseInt(inputEl.value);
+      if (!qty || qty <= 0) {
+        alert("請輸入有效數量");
+        return;
+      }
+      if (op === +1) {
+        current += qty;
+      } else {
+        if (qty > current) {
+          alert("庫存不足！");
+          return;
+        }
+        current -= qty;
+      }
+      stockEl.textContent = current;
+      inputEl.value = "";
+    }
+
+    const products = {
+      1: { name: "草蝦", price: 220 },
+      2: { name: "生蠔", price: 180 },
+      3: { name: "鮑魚", price: 320 },
+      4: { name: "章魚", price: 200 },
+      5: { name: "帝王蟹", price: 500 },
+      6: { name: "鱸魚", price: 140 },
+      7: { name: "蛤蜊", price: 100 },
+      8: { name: "干貝", price: 280 },
+      9: { name: "魷魚", price: 160 },
+      10: { name: "螃蟹", price: 230 }
+    };
+
+    let cart = {};
+
+    function addToCart(prodNum) {
+      const buyInput = document.getElementById("buyQty" + prodNum);
+      let qty = parseInt(buyInput.value);
+      if (!qty || qty <= 0) {
+        alert("請輸入購買數量");
+        return;
+      }
+      const stockEl = document.getElementById("stock" + prodNum);
+      let currentStock = parseInt(stockEl.textContent);
+      if (qty > currentStock) {
+        alert("庫存不足，無法加入購物車");
+        return;
+      }
+      if (!cart[prodNum]) {
+        cart[prodNum] = 0;
+      }
+      cart[prodNum] += qty;
+      stockEl.textContent = currentStock - qty;
+      buyInput.value = "";
+
+      renderCart();
+    }
+
+    function renderCart() {
+      const cartItemsDiv = document.getElementById("cartItems");
+      const cartTotalDiv = document.getElementById("cartTotal");
+      let html = "";
+      let total = 0;
+      for (let pid in cart) {
+        let qty = cart[pid];
+        if (qty <= 0) continue;
+        let prod = products[pid];
+        let sub = prod.price * qty;
+        total += sub;
+        html += `${prod.name} x ${qty} = NT$${sub} <br>`;
+      }
+      if (html === "") {
+        html = "尚未加入任何商品";
+      }
+      cartItemsDiv.innerHTML = html;
+      cartTotalDiv.textContent = `總金額：NT$${total}`;
+    }
+
+    function checkout() {
+      if (Object.keys(cart).length === 0) {
+        alert("購物車是空的！");
+        return;
+      }
+      let total = 0;
+      for (let pid in cart) {
+        total += products[pid].price * cart[pid];
+      }
+      alert(`結帳成功！\n總金額：NT$${total}`);
+      cart = {};
+      renderCart();
+    }
+
+    // 初始化
+    showSection("home");
+    renderCart();
+  </script>
+</body>
+</html>
