@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>新鮮蔬果產業管理 App + 可編輯內容 + 匯率換算</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f0f4f8;
+      color: #2c3e50;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .controls, .currency-converter {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    }
+    .controls label, .currency-converter label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: bold;
+    }
+    .controls input[type="text"], .controls input[type="number"],
+    .currency-converter input[type="number"],
+    .controls select, .currency-converter select {
+      width: 100%;
+      padding: 7px 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .problem-list {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .problem-item {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      margin-bottom: 15px;
+      padding: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .problem-item:hover {
+      background-color: #d6e9ff;
+    }
+    .problem-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .problem-details {
+      font-size: 16px;
+      line-height: 1.4;
+      display: none;
+    }
+    .problem-meta {
+      font-size: 14px;
+      color: #666;
+      margin-top: 12px;
+    }
+    .editable {
+      background: #fff7e6;
+      border: 1px solid #f0c36d;
+      border-radius: 4px;
+      padding: 5px 8px;
+      margin: 3px 0;
+      min-height: 18px;
+      outline: none;
+      cursor: text;
+    }
+    button {
+      display: block;
+      margin: 20px auto 0;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1b5d9b;
+    }
+    .converter-result {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #2c3e50;
+      text-align: center;
+    }
+    .converter-image {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .converter-image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
+    }
+  </style>
+</head>
+<body>
+
+<h1>新鮮蔬果產業管理 App + 可編輯內容 + 匯率換算</h1>
+
+<div class="converter-image">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Currency-Symbol_Regions_of_the_World_circa_2006.png/800px-Currency-Symbol_Regions_of_the_World_circa_2006.png" alt="世界貨幣符號地圖" />
+</div>
+
+<div class="currency-converter">
+  <label for="localAmount">本國金額（例如新台幣 NT$）</label>
+  <input type="number" id="localAmount" placeholder="輸入金額" />
+
+  <label for="targetCurrency">轉換為</label>
+  <select id="targetCurrency">
+    <option value="USD">USD（美金）</option>
+    <option value="EUR">EUR（歐元）</option>
+    <option value="JPY">JPY（日圓）</option>
+    <option value="HKD">HKD（港幣）</option>
+  </select>
+
+  <label for="rateUSD">USD 匯率</label>
+  <input type="number" id="rateUSD" value="0.032" step="0.0001" />
+
+  <label for="rateEUR">EUR 匯率</label>
+  <input type="number" id="rateEUR" value="0.030" step="0.0001" />
+
+  <label for="rateJPY">JPY 匯率</label>
+  <input type="number" id="rateJPY" value="4.20" step="0.01" />
+
+  <label for="rateHKD">HKD 匯率</label>
+  <input type="number" id="rateHKD" value="0.25" step="0.0001" />
+
+  <button onclick="convertCurrency()">換算</button>
+
+  <div class="converter-result" id="converterResult">請輸入金額並選擇目標貨幣</div>
+</div>
+
+<div class="controls">
+  <label for="searchInput">搜尋（標題、描述、時間、薪水、距離）</label>
+  <input type="text" id="searchInput" placeholder="輸入關鍵字搜尋" oninput="applyFilters()" />
+
+  <label for="productSearch">新鮮蔬果產品搜尋</label>
+  <input type="text" id="productSearch" placeholder="輸入新鮮蔬果產品名稱搜尋" oninput="applyFilters()" />
+
+  <label>時間篩選（小時）</label>
+  <input type="number" id="timeMin" placeholder="最小時間" min="0" oninput="applyFilters()" />
+  <input type="number" id="timeMax" placeholder="最大時間" min="0" oninput="applyFilters()" />
+
+  <label>薪水篩選（千元）</label>
+  <input type="number" id="salaryMin" placeholder="最低薪水" min="0" oninput="applyFilters()" />
+  <input type="number" id="salaryMax" placeholder="最高薪水" min="0" oninput="applyFilters()" />
+
+  <label>運輸距離篩選（公里）</label>
+  <input type="number" id="distanceMin" placeholder="最小距離" min="0" oninput="applyFilters()" />
+  <input type="number" id="distanceMax" placeholder="最大距離" min="0" oninput="applyFilters()" />
+
+  <label for="fatigueThreshold">疲勞駕駛距離門檻（公里，預設120）</label>
+  <input type="number" id="fatigueThreshold" min="0" value="120" oninput="applyFilters()" />
+
+  <label for="sortSelect">排序</label>
+  <select id="sortSelect" onchange="applyFilters()">
+    <option value="">無排序</option>
+    <option value="time-asc">時間：由小到大</option>
+    <option value="time-desc">時間：由大到小</option>
+    <option value="salary-asc">薪水：由低到高</option>
+    <option value="salary-desc">薪水：由高到低</option>
+    <option value="distance-asc">距離：由近到遠</option>
+    <option value="distance-desc">距離：由遠到近</option>
+  </select>
+</div>
+
+<div class="problem-list" id="problemList"></div>
+
+<script>
+  let problems = [
+    {
+      title: "排程不當",
+      description: "未考慮交通狀況或突發狀況，導致運輸時間延誤。",
+      impact: "增加成本、降低效率、客戶抱怨",
+      time: 5,
+      salary: 30,
+      distance: 100,
+      product: "草莓"
+    },
+    {
+      title: "資源分配不均",
+      description: "部分車輛或人力過度負荷，其他資源閒置浪費。",
+      impact: "降低整體生產力，影響服務品質",
+      time: 8,
+      salary: 40,
+      distance: 150,
+      product: "蘋果"
+    },
+    {
+      title: "缺乏即時調整能力",
+      description: "遇到突發事件無法快速調整運輸計劃。",
+      impact: "延誤交貨，降低客戶信任",
+      time: 3,
+      salary: 25,
+      distance: 80,
+      product: "青江菜"
+    },
+    {
+      title: "數據分析不足",
+      description: "無法利用歷史數據優化分配時間。",
+      impact: "決策依賴經驗，效果有限",
+      time: 6,
+      salary: 35,
+      distance: 120,
+      product: "高麗菜"
+    }
+  ];
+
+  const problemList = document.getElementById('problemList');
+  const searchInput = document.getElementById('searchInput');
+  const productSearch = document.getElementById('productSearch');
+  const timeMin = document.getElementById('timeMin');
+  const timeMax = document.getElementById('timeMax');
+  const salaryMin = document.getElementById('salaryMin');
+  const salaryMax = document.getElementById('salaryMax');
+  const distanceMin = document.getElementById('distanceMin');
+  const distanceMax = document.getElementById('distanceMax');
+  const sortSelect = document.getElementById('sortSelect');
+  const fatigueThresholdInput = document.getElementById('fatigueThreshold');
+
+  function renderProblems(list) {
+    const fatigueThreshold = parseFloat(fatigueThresholdInput.value) || 120;
+
+    problemList.innerHTML = '';
+    if (list.length === 0) {
+      problemList.innerHTML = '<p style="text-align:center; color:#888;">沒有符合條件的結果</p>';
+      return;
+    }
+    list.forEach((problem, idx) => {
+      const fatigueRisk = problem.distance > fatigueThreshold ? "⚠️ 是" : "否";
+
+      const div = document.createElement('div');
+      div.className = 'problem-item';
+
+      div.innerHTML = `
+        <div class="problem-title">${problem.title}</div>
+        <div class="problem-details" style="display:none;">
+          <label>描述：</label>
+          <div contenteditable="true" class="editable" data-field="description" data-idx="${idx}">${problem.description}</div>
+
+          <label>影響：</label>
+          <div contenteditable="true" class="editable" data-field="impact" data-idx="${idx}">${problem.impact}</div>
+
+          <label>新鮮蔬果產品：</label>
+          <div contenteditable="true" class="editable" data-field="product" data-idx="${idx}">${problem.product}</div>
+        </div>
+        <div class="problem-meta">
+          時間：${problem.time} 小時 | 
+          薪水：${problem.salary} 千元 | 
+          運輸距離：${problem.distance} 公里 | 
+          疲勞駕駛風險：<strong>${fatigueRisk}</strong>
+        </div>
+      `;
+
+      div.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('editable')) {
+          const details = div.querySelector('.problem-details');
+          details.style.display = (details.style.display === 'block') ? 'none' : 'block';
+        }
+      });
+
+      problemList.appendChild(div);
+    });
+
+    document.querySelectorAll('.editable').forEach(el => {
+      el.addEventListener('input', e => {
+        const idx = e.target.dataset.idx;
+        const field = e.target.dataset.field;
+        problems[idx][field] = e.target.innerText.trim();
+      });
+    });
+  }
+
+  function applyFilters() {
+    let filtered = [...problems];
+    const keyword = searchInput.value.trim().toLowerCase();
+    const productKeyword = productSearch.value.trim().toLowerCase();
+
+    if (keyword) {
+      filtered = filtered.filter(p => {
+        return (
+          p.title.toLowerCase().includes(keyword) ||
+          p.description.toLowerCase().includes(keyword) ||
+          p.impact.toLowerCase().includes(keyword) ||
+          p.time.toString().includes(keyword) ||
+          p.salary.toString().includes(keyword) ||
+          p.distance.toString().includes(keyword)
+        );
+      });
+    }
+
+    if (productKeyword) {
+      filtered = filtered.filter(p => p.product.toLowerCase().includes(productKeyword));
+    }
+
+    const tMin = parseFloat(timeMin.value);
+    if (!isNaN(tMin)) filtered = filtered.filter(p => p.time >= tMin);
+
+    const tMax = parseFloat(timeMax.value);
+    if (!isNaN(tMax)) filtered = filtered.filter(p => p.time <= tMax);
+
+    const sMin = parseFloat(salaryMin.value);
+    if (!isNaN(sMin)) filtered = filtered.filter(p => p.salary >= sMin);
+
+    const sMax = parseFloat(salaryMax.value);
+    if (!isNaN(sMax)) filtered = filtered.filter(p => p.salary <= sMax);
+
+    const dMin = parseFloat(distanceMin.value);
+    if (!isNaN(dMin)) filtered = filtered.filter(p => p.distance >= dMin);
+
+    const dMax = parseFloat(distanceMax.value);
+    if (!isNaN(dMax)) filtered = filtered.filter(p => p.distance <= dMax);
+
+    const sortVal = sortSelect.value;
+    if (sortVal) {
+      const [key, order] = sortVal.split('-');
+      filtered.sort((a, b) => {
+        if (order === 'asc') return a[key] - b[key];
+        else return b[key] - a[key];
+      });
+    }
+
+    renderProblems(filtered);
+  }
+
+  function convertCurrency() {
+    const amount = parseFloat(document.getElementById('localAmount').value);
+    const currency = document.getElementById('targetCurrency').value;
+    const rates = {
+      USD: parseFloat(document.getElementById('rateUSD').value),
+      EUR: parseFloat(document.getElementById('rateEUR').value),
+      JPY: parseFloat(document.getElementById('rateJPY').value),
+      HKD: parseFloat(document.getElementById('rateHKD').value),
+    };
+
+    if (isNaN(amount) || amount <= 0) {
+      document.getElementById('converterResult').innerText = "請輸入有效金額";
+      return;
+    }
+
+    const rate = rates[currency];
+    if (!rate || rate <= 0) {
+      document.getElementById('converterResult').innerText = "請輸入有效匯率";
+      return;
+    }
+
+    const converted = amount * rate;
+    document.getElementById('converterResult').innerText = `換算結果：${converted.toFixed(2)} ${currency}`;
+  }
+
+  // 初始化呈現
+  applyFilters();
+</script>
+
+</body>
+</html>
